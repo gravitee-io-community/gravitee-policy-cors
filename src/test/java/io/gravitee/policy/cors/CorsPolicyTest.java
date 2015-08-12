@@ -16,6 +16,7 @@
 package io.gravitee.policy.cors;
 
 import io.gravitee.common.http.HttpHeader;
+import io.gravitee.common.http.HttpMethod;
 import io.gravitee.gateway.api.Request;
 import io.gravitee.gateway.api.Response;
 import io.gravitee.gateway.api.policy.PolicyChain;
@@ -79,6 +80,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -102,6 +104,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -130,6 +133,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -149,11 +153,41 @@ public class CorsPolicyTest {
         Map<String, String> headers = new HashMap<>();
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
         assertEquals(1, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_ALLOW_ORIGIN_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
+        verify(policyChain).doNext(request, response);
+    }
+
+    @Test
+    public void testAccessControlAllowOriginWhenNotGettingOptionsMethod() throws Exception {
+        cors = new CorsPolicy(new CorsPolicyConfiguration() {
+            @Override
+            public String getAccessControlAllowOrigin() {
+                return OVERRIDDEN_ACCESS_CONTROL_ALLOW_ORIGIN_VALUE;
+            }
+
+            @Override
+            public boolean isOverrideAccessControlAllowOrigin() {
+                return true;
+            }
+        });
+        Map<String, String> headers = new HashMap<String, String>() {
+            {
+                put(HttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_VALUE);
+            }
+        };
+
+        doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.GET);
+        stub(response.headers()).toReturn(headers);
+
+        cors.onResponse(request, response, policyChain);
+        assertEquals(1, headers.size());
+        assertEquals(DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -167,6 +201,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -190,6 +225,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -218,6 +254,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -237,11 +274,41 @@ public class CorsPolicyTest {
         Map<String, String> headers = new HashMap<>();
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
         assertEquals(1, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_ALLOW_CREDENTIAL_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
+        verify(policyChain).doNext(request, response);
+    }
+
+    @Test
+    public void testAccessControlAllowCredentialsWhenNotGettingOptionsMethod() throws Exception {
+        cors = new CorsPolicy(new CorsPolicyConfiguration() {
+            @Override
+            public String getAccessControlAllowCredentials() {
+                return OVERRIDDEN_ACCESS_CONTROL_ALLOW_CREDENTIAL_VALUE;
+            }
+
+            @Override
+            public boolean isOverrideAccessControlAllowCredentials() {
+                return true;
+            }
+        });
+        Map<String, String> headers = new HashMap<String, String>() {
+            {
+                put(HttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), DEFAULT_ACCESS_CONTROL_ALLOW_CREDENTIAL_VALUE);
+            }
+        };
+
+        doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.GET);
+        stub(response.headers()).toReturn(headers);
+
+        cors.onResponse(request, response, policyChain);
+        assertEquals(1, headers.size());
+        assertEquals(DEFAULT_ACCESS_CONTROL_ALLOW_CREDENTIAL_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -255,6 +322,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -278,6 +346,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -306,6 +375,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -325,6 +395,7 @@ public class CorsPolicyTest {
         Map<String, String> headers = new HashMap<>();
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -333,6 +404,34 @@ public class CorsPolicyTest {
         verify(policyChain).doNext(request, response);
     }
 
+    @Test
+    public void testAccessControlExposeHeadersWhenNotGettingOptionsMethod() throws Exception {
+        cors = new CorsPolicy(new CorsPolicyConfiguration() {
+            @Override
+            public String getAccessControlExposeHeaders() {
+                return OVERRIDDEN_ACCESS_CONTROL_EXPOSE_HEADERS_VALUE;
+            }
+
+            @Override
+            public boolean isOverrideAccessControlExposeHeaders() {
+                return true;
+            }
+        });
+        Map<String, String> headers = new HashMap<String, String>() {
+            {
+                put(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString(), DEFAULT_ACCESS_CONTROL_EXPOSE_HEADERS_VALUE);
+            }
+        };
+
+        doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.GET);
+        stub(response.headers()).toReturn(headers);
+
+        cors.onResponse(request, response, policyChain);
+        assertEquals(1, headers.size());
+        assertEquals(DEFAULT_ACCESS_CONTROL_EXPOSE_HEADERS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()));
+        verify(policyChain).doNext(request, response);
+    }
 
     @Test
     public void testAccessControlMaxAgeWhenMissingFromConfigurationAndExistingInResponse() throws Exception {
@@ -344,6 +443,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -367,6 +467,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -395,6 +496,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -414,11 +516,41 @@ public class CorsPolicyTest {
         Map<String, String> headers = new HashMap<>();
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
         assertEquals(1, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_MAX_AGE_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_MAX_AGE.toString()));
+        verify(policyChain).doNext(request, response);
+    }
+
+    @Test
+    public void testAccessControlMaxAgeWhenNotGettingOptionsMethod() throws Exception {
+        cors = new CorsPolicy(new CorsPolicyConfiguration() {
+            @Override
+            public String getAccessControlMaxAge() {
+                return OVERRIDDEN_ACCESS_CONTROL_MAX_AGE_VALUE;
+            }
+
+            @Override
+            public boolean isOverrideAccessControlMaxAge() {
+                return true;
+            }
+        });
+        Map<String, String> headers = new HashMap<String, String>() {
+            {
+                put(HttpHeader.ACCESS_CONTROL_MAX_AGE.toString(), DEFAULT_ACCESS_CONTROL_MAX_AGE_VALUE);
+            }
+        };
+
+        doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.GET);
+        stub(response.headers()).toReturn(headers);
+
+        cors.onResponse(request, response, policyChain);
+        assertEquals(1, headers.size());
+        assertEquals(DEFAULT_ACCESS_CONTROL_MAX_AGE_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_MAX_AGE.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -432,6 +564,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -455,6 +588,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -483,6 +617,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -502,11 +637,41 @@ public class CorsPolicyTest {
         Map<String, String> headers = new HashMap<>();
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
         assertEquals(1, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_ALLOW_METHODS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()));
+        verify(policyChain).doNext(request, response);
+    }
+
+    @Test
+    public void testAccessControlAllowMethodsWhenNotGettingOptionsMethod() throws Exception {
+        cors = new CorsPolicy(new CorsPolicyConfiguration() {
+            @Override
+            public String getAccessControlAllowMethods() {
+                return OVERRIDDEN_ACCESS_CONTROL_ALLOW_METHODS_VALUE;
+            }
+
+            @Override
+            public boolean isOverrideAccessControlAllowMethods() {
+                return true;
+            }
+        });
+        Map<String, String> headers = new HashMap<String, String>() {
+            {
+                put(HttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString(), DEFAULT_ACCESS_CONTROL_ALLOW_METHODS_VALUE);
+            }
+        };
+
+        doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.GET);
+        stub(response.headers()).toReturn(headers);
+
+        cors.onResponse(request, response, policyChain);
+        assertEquals(1, headers.size());
+        assertEquals(DEFAULT_ACCESS_CONTROL_ALLOW_METHODS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -520,6 +685,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -543,6 +709,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -571,6 +738,7 @@ public class CorsPolicyTest {
         };
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
@@ -590,11 +758,41 @@ public class CorsPolicyTest {
         Map<String, String> headers = new HashMap<>();
 
         doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
         assertEquals(1, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_ALLOW_HEADERS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
+        verify(policyChain).doNext(request, response);
+    }
+
+    @Test
+    public void testAccessControlAllowHeadersWhenNotGettingOptionsMethod() throws Exception {
+        cors = new CorsPolicy(new CorsPolicyConfiguration() {
+            @Override
+            public String getAccessControlAllowHeaders() {
+                return OVERRIDDEN_ACCESS_CONTROL_ALLOW_HEADERS_VALUE;
+            }
+
+            @Override
+            public boolean isOverrideAccessControlAllowHeaders() {
+                return true;
+            }
+        });
+        Map<String, String> headers = new HashMap<String, String>() {
+            {
+                put(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString(), DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS_VALUE);
+            }
+        };
+
+        doNothing().when(policyChain).doNext(request, response);
+        stub(request.method()).toReturn(HttpMethod.GET);
+        stub(response.headers()).toReturn(headers);
+
+        cors.onResponse(request, response, policyChain);
+        assertEquals(1, headers.size());
+        assertEquals(DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 

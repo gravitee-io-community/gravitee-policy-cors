@@ -16,6 +16,7 @@
 package io.gravitee.policy.cors;
 
 import io.gravitee.common.http.HttpHeader;
+import io.gravitee.common.http.HttpMethod;
 import io.gravitee.gateway.api.Request;
 import io.gravitee.gateway.api.Response;
 import io.gravitee.gateway.api.policy.PolicyChain;
@@ -53,12 +54,14 @@ public class CorsPolicy {
 
     @OnResponse
     public void onResponse(Request request, Response response, PolicyChain policyChain) {
-        applyAccessControlAllowOrigin(response);
-        applyAccessControlAllowCredentials(response);
-        applyAccessControlExposeHeaders(response);
-        applyAccessControlMaxAge(response);
-        applyAccessControlAllowMethods(response);
-        applyAccessControlAllowHeaders(response);
+        if (request.method() == HttpMethod.OPTIONS) {
+            applyAccessControlAllowOrigin(response);
+            applyAccessControlAllowCredentials(response);
+            applyAccessControlExposeHeaders(response);
+            applyAccessControlMaxAge(response);
+            applyAccessControlAllowMethods(response);
+            applyAccessControlAllowHeaders(response);
+        }
 
         policyChain.doNext(request, response);
     }
