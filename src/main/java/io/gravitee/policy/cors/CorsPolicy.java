@@ -15,6 +15,7 @@
  */
 package io.gravitee.policy.cors;
 
+import io.gravitee.common.http.GraviteeHttpHeader;
 import io.gravitee.common.http.HttpHeader;
 import io.gravitee.common.http.HttpMethod;
 import io.gravitee.gateway.api.Request;
@@ -107,11 +108,28 @@ public class CorsPolicy {
     }
 
     private void applyAccessControlAllowHeaders(Response response) {
-        if (isActiveConfiguration(configuration.getAccessControlAllowHeaders())) {
-            if (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()) || configuration.isOverrideAccessControlAllowHeaders()) {
-                response.headers().put(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString(), configuration.getAccessControlAllowHeaders());
+        // Create new allowed headers by adding...
+        StringBuilder allowedHeaders = new StringBuilder();
+
+        // ... Configured ones if necessary
+        if (isActiveConfiguration(configuration.getAccessControlAllowHeaders()) &&
+                (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()) || configuration.isOverrideAccessControlAllowHeaders())) {
+            allowedHeaders.append(configuration.getAccessControlAllowHeaders());
+        } else {
+            String oldHeaders = response.headers().get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString());
+            if (oldHeaders != null && !oldHeaders.isEmpty()) {
+                allowedHeaders.append(response.headers().get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
             }
         }
+
+        // ... The X-Gravitee-Api-Key header
+        if (allowedHeaders.length() != 0) {
+            allowedHeaders.append(", ");
+        }
+        allowedHeaders.append(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString());
+
+        // Finally, replace old allowed headers by new computed ones
+        response.headers().put(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString(), allowedHeaders.toString());
     }
 
 }

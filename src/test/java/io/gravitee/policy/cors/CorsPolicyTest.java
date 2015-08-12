@@ -15,6 +15,7 @@
  */
 package io.gravitee.policy.cors;
 
+import io.gravitee.common.http.GraviteeHttpHeader;
 import io.gravitee.common.http.HttpHeader;
 import io.gravitee.common.http.HttpMethod;
 import io.gravitee.gateway.api.Request;
@@ -84,8 +85,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -108,8 +110,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(DEFAULT_ACCESS_CONTROL_ALLOW_ORIGIN_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -137,8 +140,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_ALLOW_ORIGIN_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -157,8 +161,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_ALLOW_ORIGIN_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -205,8 +210,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(DEFAULT_ACCESS_CONTROL_ALLOW_CREDENTIAL_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -229,8 +235,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(DEFAULT_ACCESS_CONTROL_ALLOW_CREDENTIAL_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -258,8 +265,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_ALLOW_CREDENTIAL_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -278,8 +286,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_ALLOW_CREDENTIAL_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -326,8 +335,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(DEFAULT_ACCESS_CONTROL_EXPOSE_HEADERS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -350,8 +360,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(DEFAULT_ACCESS_CONTROL_EXPOSE_HEADERS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -379,8 +390,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_EXPOSE_HEADERS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -399,8 +411,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_EXPOSE_HEADERS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -447,8 +460,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(DEFAULT_ACCESS_CONTROL_MAX_AGE_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_MAX_AGE.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -471,8 +485,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(DEFAULT_ACCESS_CONTROL_MAX_AGE_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_MAX_AGE.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -500,8 +515,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_MAX_AGE_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_MAX_AGE.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -520,8 +536,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_MAX_AGE_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_MAX_AGE.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -568,8 +585,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(DEFAULT_ACCESS_CONTROL_ALLOW_METHODS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -592,8 +610,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(DEFAULT_ACCESS_CONTROL_ALLOW_METHODS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -621,8 +640,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_ALLOW_METHODS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -641,8 +661,9 @@ public class CorsPolicyTest {
         stub(response.headers()).toReturn(headers);
 
         cors.onResponse(request, response, policyChain);
-        assertEquals(1, headers.size());
+        assertEquals(2, headers.size());
         assertEquals(OVERRIDDEN_ACCESS_CONTROL_ALLOW_METHODS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()));
+        assertEquals(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString(), headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -680,7 +701,7 @@ public class CorsPolicyTest {
         cors = new CorsPolicy(new CorsPolicyConfiguration());
         Map<String, String> headers = new HashMap<String, String>() {
             {
-                put(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString(), DEFAULT_ACCESS_CONTROL_EXPOSE_HEADERS_VALUE);
+                put(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString(), DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS_VALUE);
             }
         };
 
@@ -690,7 +711,11 @@ public class CorsPolicyTest {
 
         cors.onResponse(request, response, policyChain);
         assertEquals(1, headers.size());
-        assertEquals(DEFAULT_ACCESS_CONTROL_EXPOSE_HEADERS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
+        assertEquals(
+                DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS_VALUE
+                        + ", "
+                        + GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString()
+                , headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -714,7 +739,11 @@ public class CorsPolicyTest {
 
         cors.onResponse(request, response, policyChain);
         assertEquals(1, headers.size());
-        assertEquals(DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
+        assertEquals(
+                DEFAULT_ACCESS_CONTROL_ALLOW_HEADERS_VALUE
+                        + ", "
+                        + GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString()
+                , headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -743,7 +772,11 @@ public class CorsPolicyTest {
 
         cors.onResponse(request, response, policyChain);
         assertEquals(1, headers.size());
-        assertEquals(OVERRIDDEN_ACCESS_CONTROL_ALLOW_HEADERS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
+        assertEquals(
+                OVERRIDDEN_ACCESS_CONTROL_ALLOW_HEADERS_VALUE
+                        + ", "
+                        + GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString()
+                , headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
@@ -763,7 +796,10 @@ public class CorsPolicyTest {
 
         cors.onResponse(request, response, policyChain);
         assertEquals(1, headers.size());
-        assertEquals(OVERRIDDEN_ACCESS_CONTROL_ALLOW_HEADERS_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
+        assertEquals(OVERRIDDEN_ACCESS_CONTROL_ALLOW_HEADERS_VALUE
+                + ", "
+                + GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString()
+                , headers.get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
         verify(policyChain).doNext(request, response);
     }
 
