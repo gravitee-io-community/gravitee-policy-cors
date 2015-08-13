@@ -24,7 +24,7 @@ import io.gravitee.gateway.api.policy.PolicyChain;
 import io.gravitee.gateway.api.policy.annotations.OnResponse;
 
 /**
- * @author abourdon
+ * @author Aurélien Bourdon (aurelien.bourdon at gmail.com)
  */
 @SuppressWarnings("unused")
 public class CorsPolicy {
@@ -67,69 +67,82 @@ public class CorsPolicy {
         policyChain.doNext(request, response);
     }
 
+    private static void updateHeader(Response response, String name, String value) {
+        // If value is null, then we have to remove header
+        if (value == null) {
+            response.headers().remove(name);
+        }
+        // Else we have to update its value
+        else {
+            response.headers().put(name, value);
+        }
+    }
+
     private void applyAccessControlAllowOrigin(Response response) {
-        if (isActiveConfiguration(configuration.getAccessControlAllowOrigin())) {
-            if (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) || configuration.isOverrideAccessControlAllowOrigin()) {
-                response.headers().put(HttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), configuration.getAccessControlAllowOrigin());
+        if (configuration.getAccessControlAllowOrigin().isEnabled()) {
+            if (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString()) || configuration.getAccessControlAllowOrigin().isOverridden()) {
+                updateHeader(response, HttpHeader.ACCESS_CONTROL_ALLOW_ORIGIN.toString(), configuration.getAccessControlAllowOrigin().getValue());
             }
         }
     }
 
     private void applyAccessControlAllowCredentials(Response response) {
-        if (isActiveConfiguration(configuration.getAccessControlAllowCredentials())) {
-            if (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) || configuration.isOverrideAccessControlAllowCredentials()) {
-                response.headers().put(HttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), configuration.getAccessControlAllowCredentials());
+        if (configuration.getAccessControlAllowCredentials().isEnabled()) {
+            if (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString()) || configuration.getAccessControlAllowCredentials().isOverridden()) {
+                updateHeader(response, HttpHeader.ACCESS_CONTROL_ALLOW_CREDENTIALS.toString(), configuration.getAccessControlAllowCredentials().getValue());
             }
         }
     }
 
     private void applyAccessControlExposeHeaders(Response response) {
-        if (isActiveConfiguration(configuration.getAccessControlExposeHeaders())) {
-            if (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()) || configuration.isOverrideAccessControlExposeHeaders()) {
-                response.headers().put(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString(), configuration.getAccessControlExposeHeaders());
+        if (configuration.getAccessControlExposeHeaders().isEnabled()) {
+            if (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()) || configuration.getAccessControlExposeHeaders().isOverridden()) {
+                updateHeader(response, HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString(), configuration.getAccessControlExposeHeaders().getValue());
             }
         }
     }
 
     private void applyAccessControlMaxAge(Response response) {
-        if (isActiveConfiguration(configuration.getAccessControlMaxAge())) {
-            if (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_MAX_AGE.toString()) || configuration.isOverrideAccessControlMaxAge()) {
-                response.headers().put(HttpHeader.ACCESS_CONTROL_MAX_AGE.toString(), configuration.getAccessControlMaxAge());
+        if (configuration.getAccessControlMaxAge().isEnabled()) {
+            if (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_MAX_AGE.toString()) || configuration.getAccessControlMaxAge().isOverridden()) {
+                updateHeader(response, HttpHeader.ACCESS_CONTROL_MAX_AGE.toString(), configuration.getAccessControlMaxAge().getValue());
             }
         }
     }
 
     private void applyAccessControlAllowMethods(Response response) {
-        if (isActiveConfiguration(configuration.getAccessControlAllowMethods())) {
-            if (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()) || configuration.isOverrideAccessControlAllowMethods()) {
-                response.headers().put(HttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString(), configuration.getAccessControlAllowMethods());
+        if (configuration.getAccessControlAllowMethods().isEnabled()) {
+            if (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString()) || configuration.getAccessControlAllowMethods().isOverridden()) {
+                updateHeader(response, HttpHeader.ACCESS_CONTROL_ALLOW_METHODS.toString(), configuration.getAccessControlAllowMethods().getValue());
             }
         }
     }
 
     private void applyAccessControlAllowHeaders(Response response) {
-        // Create new allowed headers by adding...
-        StringBuilder allowedHeaders = new StringBuilder();
+        if (configuration.getAccessControlAllowHeaders().isEnabled()) {
+            // Create new allowed headers by adding...
+            StringBuilder allowedHeaders = new StringBuilder();
 
-        // ... Configured ones if necessary
-        if (isActiveConfiguration(configuration.getAccessControlAllowHeaders()) &&
-                (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()) || configuration.isOverrideAccessControlAllowHeaders())) {
-            allowedHeaders.append(configuration.getAccessControlAllowHeaders());
-        } else {
-            String oldHeaders = response.headers().get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString());
-            if (oldHeaders != null && !oldHeaders.isEmpty()) {
+            // ... Configured ones if necessary
+            if (!response.headers().containsKey(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()) || configuration.getAccessControlAllowHeaders().isOverridden()) {
+                if (configuration.getAccessControlAllowHeaders().getValue() != null) {
+                    allowedHeaders.append(configuration.getAccessControlAllowHeaders().getValue());
+                }
+            }
+            // ... Or by adding current allowed headers
+            else if (response.headers().containsKey(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString())) {
                 allowedHeaders.append(response.headers().get(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString()));
             }
-        }
 
-        // ... The X-Gravitee-Api-Key header
-        if (allowedHeaders.length() != 0) {
-            allowedHeaders.append(", ");
-        }
-        allowedHeaders.append(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString());
+            // ... And The X-Gravitee-Api-Key header
+            if (allowedHeaders.length() != 0) {
+                allowedHeaders.append(", ");
+            }
+            allowedHeaders.append(GraviteeHttpHeader.X_GRAVITEE_API_KEY.toString());
 
-        // Finally, replace old allowed headers by new computed ones
-        response.headers().put(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString(), allowedHeaders.toString());
+            // Finally, replace old allowed headers by new computed ones
+            response.headers().put(HttpHeader.ACCESS_CONTROL_ALLOW_HEADERS.toString(), allowedHeaders.toString());
+        }
     }
 
 }

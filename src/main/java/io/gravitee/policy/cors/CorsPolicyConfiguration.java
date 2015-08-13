@@ -20,81 +20,68 @@ import io.gravitee.gateway.api.policy.PolicyConfiguration;
 /**
  * TODO Handle specific header types to avoid only using String values
  *
- * @author abourdon
+ * @author Aurélien Bourdon (aurelien.bourdon at gmail.com)
  */
 @SuppressWarnings("unused")
 public class CorsPolicyConfiguration implements PolicyConfiguration {
 
-    private String accessControlAllowOrigin;
+    private CorsPolicyConfigurationProperty<String> accessControlAllowOrigin;
 
-    private boolean overrideAccessControlAllowOrigin;
+    private CorsPolicyConfigurationProperty<String> accessControlAllowCredentials;
 
-    private String accessControlAllowCredentials;
+    private CorsPolicyConfigurationProperty<String> accessControlExposeHeaders;
 
-    private boolean overrideAccessControlAllowCredentials;
+    private CorsPolicyConfigurationProperty<String> accessControlMaxAge;
 
-    private String accessControlExposeHeaders;
+    private CorsPolicyConfigurationProperty<String> accessControlAllowMethods;
 
-    private boolean overrideAccessControlExposeHeaders;
+    private CorsPolicyConfigurationProperty<String> accessControlAllowHeaders;
 
-    private String accessControlMaxAge;
-
-    private boolean overrideAccessControlMaxAge;
-
-    private String accessControlAllowMethods;
-
-    private boolean overrideAccessControlAllowMethods;
-
-    private String accessControlAllowHeaders;
-
-    private boolean overrideAccessControlAllowHeaders;
-
-    public String getAccessControlAllowOrigin() {
+    public CorsPolicyConfigurationProperty<String> getAccessControlAllowOrigin() {
         return accessControlAllowOrigin;
     }
 
-    public boolean isOverrideAccessControlAllowOrigin() {
-        return overrideAccessControlAllowOrigin;
+    public void setAccessControlAllowOrigin(CorsPolicyConfigurationProperty<String> accessControlAllowOrigin) {
+        this.accessControlAllowOrigin = accessControlAllowOrigin;
     }
 
-    public String getAccessControlAllowCredentials() {
+    public CorsPolicyConfigurationProperty<String> getAccessControlAllowCredentials() {
         return accessControlAllowCredentials;
     }
 
-    public boolean isOverrideAccessControlAllowCredentials() {
-        return overrideAccessControlAllowCredentials;
+    public void setAccessControlAllowCredentials(CorsPolicyConfigurationProperty<String> accessControlAllowCredentials) {
+        this.accessControlAllowCredentials = accessControlAllowCredentials;
     }
 
-    public String getAccessControlExposeHeaders() {
+    public CorsPolicyConfigurationProperty<String> getAccessControlExposeHeaders() {
         return accessControlExposeHeaders;
     }
 
-    public boolean isOverrideAccessControlExposeHeaders() {
-        return overrideAccessControlExposeHeaders;
+    public void setAccessControlExposeHeaders(CorsPolicyConfigurationProperty<String> accessControlExposeHeaders) {
+        this.accessControlExposeHeaders = accessControlExposeHeaders;
     }
 
-    public String getAccessControlMaxAge() {
+    public CorsPolicyConfigurationProperty<String> getAccessControlMaxAge() {
         return accessControlMaxAge;
     }
 
-    public boolean isOverrideAccessControlMaxAge() {
-        return overrideAccessControlMaxAge;
+    public void setAccessControlMaxAge(CorsPolicyConfigurationProperty<String> accessControlMaxAge) {
+        this.accessControlMaxAge = accessControlMaxAge;
     }
 
-    public String getAccessControlAllowMethods() {
+    public CorsPolicyConfigurationProperty<String> getAccessControlAllowMethods() {
         return accessControlAllowMethods;
     }
 
-    public boolean isOverrideAccessControlAllowMethods() {
-        return overrideAccessControlAllowMethods;
+    public void setAccessControlAllowMethods(CorsPolicyConfigurationProperty<String> accessControlAllowMethods) {
+        this.accessControlAllowMethods = accessControlAllowMethods;
     }
 
-    public String getAccessControlAllowHeaders() {
+    public CorsPolicyConfigurationProperty<String> getAccessControlAllowHeaders() {
         return accessControlAllowHeaders;
     }
 
-    public boolean isOverrideAccessControlAllowHeaders() {
-        return overrideAccessControlAllowHeaders;
+    public void setAccessControlAllowHeaders(CorsPolicyConfigurationProperty<String> accessControlAllowHeaders) {
+        this.accessControlAllowHeaders = accessControlAllowHeaders;
     }
-
 }
