@@ -15,11 +15,10 @@
  */
 package io.gravitee.policy.cors;
 
-import io.gravitee.common.http.HttpHeader;
+import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.HttpMethod;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -34,11 +33,12 @@ public class CorsPolicyHeaderAccessControlExposeHeaders extends CorsPolicyHeader
 
     @Override
     public void testHeaderWhenConfigurationDeactivatedAndExistingInResponse() throws Exception {
-        Map<String, String> headers = new HashMap<String, String>() {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setAll(new HashMap<String, String>() {
             {
-                put(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString(), DEFAULT_HEADER_VALUE);
+                put(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, DEFAULT_HEADER_VALUE);
             }
-        };
+        });
         doNothing().when(policyChain).doNext(request, response);
         stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
@@ -46,17 +46,18 @@ public class CorsPolicyHeaderAccessControlExposeHeaders extends CorsPolicyHeader
         cors.onResponse(request, response, policyChain);
 
         assertEquals(1, headers.size());
-        assertEquals(DEFAULT_HEADER_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()));
+        assertEquals(DEFAULT_HEADER_VALUE, headers.getFirst(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
         verify(policyChain).doNext(request, response);
     }
 
     @Override
     public void testHeaderWhenConfigurationActivatedAndNotOverridingAndExistingInResponse() throws Exception {
-        Map<String, String> headers = new HashMap<String, String>() {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setAll(new HashMap<String, String>() {
             {
-                put(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString(), DEFAULT_HEADER_VALUE);
+                put(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, DEFAULT_HEADER_VALUE);
             }
-        };
+        });
         doNothing().when(policyChain).doNext(request, response);
         stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
@@ -65,13 +66,13 @@ public class CorsPolicyHeaderAccessControlExposeHeaders extends CorsPolicyHeader
         cors.onResponse(request, response, policyChain);
 
         assertEquals(1, headers.size());
-        assertEquals(DEFAULT_HEADER_VALUE, headers.get(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()));
+        assertEquals(DEFAULT_HEADER_VALUE, headers.getFirst(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
         verify(policyChain).doNext(request, response);
     }
 
     @Override
     public void testHeaderWhenConfigurationActivatedAndNotOverridingWithNullValueAndNotExistingInResponse() throws Exception {
-        Map<String, String> headers = new HashMap<>();
+        final HttpHeaders headers = new HttpHeaders();
         doNothing().when(policyChain).doNext(request, response);
         stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
@@ -86,7 +87,7 @@ public class CorsPolicyHeaderAccessControlExposeHeaders extends CorsPolicyHeader
 
     @Override
     public void testHeaderWhenConfigurationActivatedAndNotOverridingWithNonNullValueAndNotExistingInResponse() throws Exception {
-        Map<String, String> headers = new HashMap<>();
+        final HttpHeaders headers = new HttpHeaders();
         doNothing().when(policyChain).doNext(request, response);
         stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
@@ -96,13 +97,13 @@ public class CorsPolicyHeaderAccessControlExposeHeaders extends CorsPolicyHeader
         cors.onResponse(request, response, policyChain);
 
         assertEquals(1, headers.size());
-        assertEquals("X-Foo-Header, X-Bar-Header", headers.get(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()));
+        assertEquals("X-Foo-Header, X-Bar-Header", headers.getFirst(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
         verify(policyChain).doNext(request, response);
     }
 
     @Override
     public void testHeaderWhenConfigurationActivatedAndOverridingWithNullValueAndNotExistingInResponse() throws Exception {
-        Map<String, String> headers = new HashMap<>();
+        final HttpHeaders headers = new HttpHeaders();
         doNothing().when(policyChain).doNext(request, response);
         stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
@@ -118,7 +119,7 @@ public class CorsPolicyHeaderAccessControlExposeHeaders extends CorsPolicyHeader
 
     @Override
     public void testHeaderWhenConfigurationActivatedAndOverridingWithNonNullValueAndNotExistingInResponse() throws Exception {
-        Map<String, String> headers = new HashMap<>();
+        final HttpHeaders headers = new HttpHeaders();
         doNothing().when(policyChain).doNext(request, response);
         stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
@@ -129,17 +130,18 @@ public class CorsPolicyHeaderAccessControlExposeHeaders extends CorsPolicyHeader
         cors.onResponse(request, response, policyChain);
 
         assertEquals(1, headers.size());
-        assertEquals("X-Foo-Header, X-Bar-Header", headers.get(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()));
+        assertEquals("X-Foo-Header, X-Bar-Header", headers.getFirst(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
         verify(policyChain).doNext(request, response);
     }
 
     @Override
     public void testHeaderWhenConfigurationActivatedAndOverridingWithNullValueAndExistingInResponse() throws Exception {
-        Map<String, String> headers = new HashMap<String, String>() {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setAll(new HashMap<String, String>() {
             {
-                put(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString(), DEFAULT_HEADER_VALUE);
+                put(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, DEFAULT_HEADER_VALUE);
             }
-        };
+        });
         doNothing().when(policyChain).doNext(request, response);
         stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
@@ -155,11 +157,12 @@ public class CorsPolicyHeaderAccessControlExposeHeaders extends CorsPolicyHeader
 
     @Override
     public void testHeaderWhenConfigurationActivatedAndOverridingWithNonNullValueAndExistingInResponse() throws Exception {
-        Map<String, String> headers = new HashMap<String, String>() {
+        final HttpHeaders headers = new HttpHeaders();
+        headers.setAll(new HashMap<String, String>() {
             {
-                put(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString(), DEFAULT_HEADER_VALUE);
+                put(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, DEFAULT_HEADER_VALUE);
             }
-        };
+        });
         doNothing().when(policyChain).doNext(request, response);
         stub(request.method()).toReturn(HttpMethod.OPTIONS);
         stub(response.headers()).toReturn(headers);
@@ -170,7 +173,7 @@ public class CorsPolicyHeaderAccessControlExposeHeaders extends CorsPolicyHeader
         cors.onResponse(request, response, policyChain);
 
         assertEquals(1, headers.size());
-        assertEquals("X-Foo-Header, X-Bar-Header", headers.get(HttpHeader.ACCESS_CONTROL_EXPOSE_HEADERS.toString()));
+        assertEquals("X-Foo-Header, X-Bar-Header", headers.getFirst(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS));
         verify(policyChain).doNext(request, response);
     }
 
