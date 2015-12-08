@@ -28,14 +28,6 @@ public class PolicyConfigurationProperty<T> {
 
     private boolean enabled;
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public T getValue() {
         return value;
     }
