@@ -22,8 +22,6 @@ package io.gravitee.policy.cors;
  */
 public class PolicyConfigurationProperty<T> {
 
-    private String name;
-
     private T value;
 
     private boolean enabled;

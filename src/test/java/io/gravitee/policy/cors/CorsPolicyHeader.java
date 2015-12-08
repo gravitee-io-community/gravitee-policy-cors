@@ -17,7 +17,7 @@ package io.gravitee.policy.cors;
 
 import io.gravitee.gateway.api.Request;
 import io.gravitee.gateway.api.Response;
-import io.gravitee.gateway.api.policy.PolicyChain;
+import io.gravitee.policy.api.PolicyChain;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;

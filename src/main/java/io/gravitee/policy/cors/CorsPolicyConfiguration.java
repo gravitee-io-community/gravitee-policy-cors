@@ -15,7 +15,7 @@
  */
 package io.gravitee.policy.cors;
 
-import io.gravitee.gateway.api.policy.PolicyConfiguration;
+import io.gravitee.policy.api.PolicyConfiguration;
 
 /**
  * TODO Handle specific header types to avoid only using String values
