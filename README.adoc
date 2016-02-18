@@ -40,7 +40,7 @@ You can configure the policy with the following options :
 [source, json]
 .Sample
 ----
-"gravitee-policy-cors": {
+"cors": {
   "todo": true
 }
 ----
