@@ -34,14 +34,15 @@
     </parent>
 
     <properties>
-        <gravitee-gateway-api.version>0.4.0</gravitee-gateway-api.version>
-        <gravitee-policy-api.version>0.4.0</gravitee-policy-api.version>
-        <gravitee-common.version>0.2.0</gravitee-common.version>
+        <gravitee-gateway-api.version>0.9.0</gravitee-gateway-api.version>
+        <gravitee-policy-api.version>0.6.0</gravitee-policy-api.version>
+        <gravitee-common.version>0.7.0-SNAPSHOT</gravitee-common.version>
 
         <json-schema-generator-maven-plugin.version>1.1.0</json-schema-generator-maven-plugin.version>
         <json-schema-generator-maven-plugin.outputDirectory>${project.build.directory}/schemas</json-schema-generator-maven-plugin.outputDirectory>
 
         <maven-assembly-plugin.version>2.5.5</maven-assembly-plugin.version>
+        <jackson.version>2.5.3</jackson.version>
     </properties>
 
     <dependencies>
@@ -64,6 +65,14 @@
             <groupId>io.gravitee.common</groupId>
             <artifactId>gravitee-common</artifactId>
             <version>${gravitee-common.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Jackson dependencies -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -102,7 +111,7 @@
                         </goals>
                         <configuration>
                             <includes>
-                                <include>io/gravitee/policy/cors/CorsPolicyConfiguration.class</include>
+                                <include>io/gravitee/policy/cors/configuration/CorsPolicyConfiguration.class</include>
                             </includes>
                             <outputDirectory>${json-schema-generator-maven-plugin.outputDirectory}</outputDirectory>
                         </configuration>

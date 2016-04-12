@@ -15,19 +15,29 @@
  */
 package io.gravitee.policy.cors;
 
-import io.gravitee.common.http.GraviteeHttpHeader;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.HttpMethod;
-import io.gravitee.gateway.api.Request;
-import io.gravitee.gateway.api.Response;
+import io.gravitee.common.http.HttpStatusCode;
+import io.gravitee.gateway.api.*;
+import io.gravitee.gateway.api.buffer.Buffer;
+import io.gravitee.gateway.api.handler.Handler;
 import io.gravitee.policy.api.PolicyChain;
+import io.gravitee.policy.api.annotations.OnRequest;
 import io.gravitee.policy.api.annotations.OnResponse;
+import io.gravitee.policy.cors.configuration.CorsPolicyConfiguration;
+
+import java.util.Collection;
 
 /**
- * @author Aurélien Bourdon (aurelien.bourdon at gmail.com)
+ * @author David BRASSELY (david at gravitee.io)
+ * @author GraviteeSource Team
  */
 @SuppressWarnings("unused")
 public class CorsPolicy {
+
+    private final static String ALLOW_ORIGIN_PUBLIC_WILDCARD = "*";
+
+    private final static String JOINER_CHAR_SEQUENCE = ", ";
 
     /**
      * The associated configuration to this Cors Policy
@@ -43,106 +53,194 @@ public class CorsPolicy {
         this.configuration = configuration;
     }
 
-    /**
-     * Check if the given configuration name is active, i.e., if configuration is not <code>null</code>.
-     *
-     * @param configuration the configuration to check if active
-     * @return <code>true</code> if configuration is active, <code>false</code> otherwise
-     */
-    private static boolean isActiveConfiguration(Object configuration) {
-        return configuration != null;
-    }
-
     @OnResponse
     public void onResponse(Request request, Response response, PolicyChain policyChain) {
-        if (request.method() == HttpMethod.OPTIONS) {
-            applyAccessControlAllowOrigin(response);
-            applyAccessControlAllowCredentials(response);
-            applyAccessControlExposeHeaders(response);
-            applyAccessControlMaxAge(response);
-            applyAccessControlAllowMethods(response);
-            applyAccessControlAllowHeaders(response);
+        if (! isPreflightRequest(request)) {
+            if (configuration.getAccessControlExposeHeaders() != null && ! configuration.getAccessControlExposeHeaders().isEmpty()) {
+                response.headers().set(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS,
+                        String.join(JOINER_CHAR_SEQUENCE, configuration.getAccessControlExposeHeaders()));
+            }
+        } else {
+            response.headers().set(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS,
+                    String.join(JOINER_CHAR_SEQUENCE, configuration.getAccessControlAllowHeaders()));
+
+            response.headers().set(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
+                    String.join(JOINER_CHAR_SEQUENCE, configuration.getAccessControlAllowMethods()));
+
+            if (configuration.getAccessControlMaxAge() > -1) {
+                response.headers().set(HttpHeaders.ACCESS_CONTROL_MAX_AGE,
+                        Integer.toString(configuration.getAccessControlMaxAge()));
+            }
+        }
+
+        if (configuration.isAccessControlAllowCredentials()) {
+            response.headers().set(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS,
+                    Boolean.TRUE.toString());
+            response.headers().set(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN,
+                    request.headers().getFirst(HttpHeaders.ORIGIN));
+        } else {
+            response.headers().set(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, ALLOW_ORIGIN_PUBLIC_WILDCARD);
         }
 
         policyChain.doNext(request, response);
     }
 
-    private static void updateHeader(Response response, String name, String value) {
-        // If value is null, then we have to remove header
-        if (value == null) {
-            response.headers().remove(name);
+    @OnRequest
+    public void onRequest(Request request, Response response, ExecutionContext executionContext, PolicyChain policyChain) {
+        if (isPreflightRequest(request)) {
+            // Update invoker to skip remote call
+            executionContext.setAttribute(ExecutionContext.ATTR_INVOKER, new PreflightInvoker(request));
         }
-        // Else we have to update its value
-        else {
-            response.headers().set(name, value);
+
+        policyChain.doNext(request, response);
+    }
+
+    private boolean isOriginAllowed(String origin) {
+        return origin.contains(ALLOW_ORIGIN_PUBLIC_WILDCARD) || origin.contains(origin);
+    }
+
+    private boolean isRequestHeadersValid(String accessControlRequestHeaders) {
+        String [] headers = splitAndTrim(accessControlRequestHeaders, ",");
+        return containsAll(configuration.getAccessControlAllowHeaders(), headers);
+    }
+
+    private boolean isRequestMethodsValid(String accessControlRequestMethods) {
+        String [] methods = splitAndTrim(accessControlRequestMethods, ",");
+        return containsAll(configuration.getAccessControlAllowMethods(), methods);
+    }
+
+    private boolean isPreflightRequest(Request request) {
+        String originHeader = request.headers().getFirst(HttpHeaders.ORIGIN);
+        String accessControlRequestMethod = request.headers().getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
+        return request.method() == HttpMethod.OPTIONS &&
+                originHeader != null &&
+                accessControlRequestMethod != null;
+    }
+
+    private static String[] splitAndTrim(String value, String regex) {
+        if (value == null)
+            return null;
+
+        String [] values = value.split(regex);
+        String [] ret = new String[values.length];
+        for (int i = 0 ; i < values.length ; i++) {
+            ret[i] = values[i].trim();
+        }
+
+        return ret;
+    }
+
+    private static boolean containsAll(Collection<String> col, String [] values) {
+        for (String val: values) {
+            if (! col.contains(val)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    class PreflightInvoker implements Invoker {
+
+        private final Request request;
+
+        PreflightInvoker(final Request request) {
+            this.request = request;
+        }
+
+        @Override
+        public ClientRequest invoke(ExecutionContext executionContext, Request serverRequest, Handler<ClientResponse> result) {
+            final ClientRequest clientRequest = new PreflightClientRequest(request, result);
+
+            serverRequest
+                    .bodyHandler(clientRequest::write)
+                    .endHandler(endResult -> clientRequest.end());
+
+            return clientRequest;
         }
     }
 
-    private void applyAccessControlAllowOrigin(Response response) {
-        if (configuration.getAccessControlAllowOrigin().isEnabled()) {
-            if (!response.headers().containsKey(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN) || configuration.getAccessControlAllowOrigin().isOverridden()) {
-                updateHeader(response, HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, configuration.getAccessControlAllowOrigin().getValue());
+    class PreflightClientRequest implements ClientRequest {
+
+        private final Handler<ClientResponse> clientResponseHandler;
+        private final Request request;
+
+        PreflightClientRequest(final Request request, final Handler<ClientResponse> clientResponseHandler) {
+            this.request = request;
+            this.clientResponseHandler = clientResponseHandler;
+        }
+
+        @Override
+        public ClientRequest connectTimeoutHandler(Handler<Throwable> timeoutHandler) {
+            return this;
+        }
+
+        @Override
+        public ClientRequest write(Buffer chunk) {
+            return this;
+        }
+
+        @Override
+        public void end() {
+            // Prepare response
+            PreflightClientResponse preflightClientResponse = new PreflightClientResponse();
+
+            // 1. If the Origin header is not present terminate this set of steps. The request is outside the scope of
+            //  this specification.
+            // 2. If the value of the Origin header is not a case-sensitive match for any of the values in list of
+            //  origins, do not set any additional headers and terminate this set of steps.
+            String originHeader = request.headers().getFirst(HttpHeaders.ORIGIN);
+            if (! isOriginAllowed(originHeader)) {
+                preflightClientResponse.status = configuration.getCorsErrorStatusCode();
             }
+
+            // 3. Let method be the value as result of parsing the Access-Control-Request-Method header.
+            // If there is no Access-Control-Request-Method header or if parsing failed, do not set any additional
+            //  headers and terminate this set of steps. The request is outside the scope of this specification.
+            String accessControlRequestMethod = request.headers().getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
+            if (! isRequestMethodsValid(accessControlRequestMethod)) {
+                preflightClientResponse.status = configuration.getCorsErrorStatusCode();
+            }
+
+            String accessControlRequestHeaders = request.headers().getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
+            if (! isRequestHeadersValid(accessControlRequestHeaders)) {
+                preflightClientResponse.status = configuration.getCorsErrorStatusCode();
+            }
+
+            clientResponseHandler.handle(preflightClientResponse);
+            preflightClientResponse.endHandler.handle(null);
         }
     }
 
-    private void applyAccessControlAllowCredentials(Response response) {
-        if (configuration.getAccessControlAllowCredentials().isEnabled()) {
-            if (!response.headers().containsKey(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS) || configuration.getAccessControlAllowCredentials().isOverridden()) {
-                updateHeader(response, HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, configuration.getAccessControlAllowCredentials().getValue());
-            }
+    class PreflightClientResponse implements ClientResponse {
+
+        private final HttpHeaders headers = new HttpHeaders();
+
+        private Handler<Buffer> bodyHandler;
+        private Handler<Void> endHandler;
+
+        int status = HttpStatusCode.OK_200;
+
+        @Override
+        public int status() {
+            return status;
+        }
+
+        @Override
+        public HttpHeaders headers() {
+            return headers;
+        }
+
+        @Override
+        public ClientResponse bodyHandler(Handler<Buffer> bodyHandler) {
+            this.bodyHandler = bodyHandler;
+            return this;
+        }
+
+        @Override
+        public ClientResponse endHandler(Handler<Void> endHandler) {
+            this.endHandler = endHandler;
+            return this;
         }
     }
-
-    private void applyAccessControlExposeHeaders(Response response) {
-        if (configuration.getAccessControlExposeHeaders().isEnabled()) {
-            if (!response.headers().containsKey(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS) || configuration.getAccessControlExposeHeaders().isOverridden()) {
-                updateHeader(response, HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, configuration.getAccessControlExposeHeaders().getValue());
-            }
-        }
-    }
-
-    private void applyAccessControlMaxAge(Response response) {
-        if (configuration.getAccessControlMaxAge().isEnabled()) {
-            if (!response.headers().containsKey(HttpHeaders.ACCESS_CONTROL_MAX_AGE) || configuration.getAccessControlMaxAge().isOverridden()) {
-                updateHeader(response, HttpHeaders.ACCESS_CONTROL_MAX_AGE, configuration.getAccessControlMaxAge().getValue());
-            }
-        }
-    }
-
-    private void applyAccessControlAllowMethods(Response response) {
-        if (configuration.getAccessControlAllowMethods().isEnabled()) {
-            if (!response.headers().containsKey(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS) || configuration.getAccessControlAllowMethods().isOverridden()) {
-                updateHeader(response, HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, configuration.getAccessControlAllowMethods().getValue());
-            }
-        }
-    }
-
-    private void applyAccessControlAllowHeaders(Response response) {
-        if (configuration.getAccessControlAllowHeaders().isEnabled()) {
-            // Create new allowed headers by adding...
-            StringBuilder allowedHeaders = new StringBuilder();
-
-            // ... Configured ones if necessary
-            if (!response.headers().containsKey(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS) || configuration.getAccessControlAllowHeaders().isOverridden()) {
-                if (configuration.getAccessControlAllowHeaders().getValue() != null) {
-                    allowedHeaders.append(configuration.getAccessControlAllowHeaders().getValue());
-                }
-            }
-            // ... Or by adding current allowed headers
-            else if (response.headers().containsKey(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS)) {
-                allowedHeaders.append(response.headers().getFirst(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS));
-            }
-
-            // ... And The X-Gravitee-Api-Key header
-            if (allowedHeaders.length() != 0) {
-                allowedHeaders.append(", ");
-            }
-            allowedHeaders.append(GraviteeHttpHeader.X_GRAVITEE_API_KEY);
-
-            // Finally, replace old allowed headers by new computed ones
-            response.headers().set(HttpHeaders.ACCESS_CONTROL_ALLOW_HEADERS, allowedHeaders.toString());
-        }
-    }
-
 }
