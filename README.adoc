@@ -66,3 +66,13 @@ You can configure the policy with the following options :
     ]
 }
 ----
+
+== Http Status Code
+
+|===
+|Code |Message
+
+| ```400```
+| In case of invalid pre-flight request (Origin not allowed, request methods / headers invalid, ...)
+
+|===
