@@ -1,25 +1,33 @@
 = CORS Policy
 
-https://github.com/gravitee-io/gravitee-policy-cors[Source code],
-image:http://build.gravitee.io/jenkins/buildStatus/icon?job=gravitee-policy-cors["Build status", link="http://build.gravitee.io/jenkins/job/gravitee-policy-cors/"]
+ifdef::env-github[]
+image:https://img.shields.io/github/watchers/gravitee-io/gravitee-policy-cors.svg?style=social&maxAge=2592000)["GitHub", link="https://github.com/gravitee-io/gravitee-policy-cors"]
+image:https://ci.gravitee.io/buildStatus/icon?job=gravitee-io/gravitee-policy-cors/master["Build status", link="https://ci.gravitee.io/job/gravitee-io/job/gravitee-policy-cors/"]
+image:https://badges.gitter.im/Join Chat.svg["Gitter", link="https://gitter.im/gravitee-io/gravitee-io?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge"]
+endif::[]
 
-== Scope
+== Phase
 
 |===
 |onRequest |onResponse
 
-|
-|
+| X
+| X
 
 |===
 
 == Description
 
-CORS management Policy which lets you to add/set/remove CORS HTTP headers from and to the API response.
+CORS policy lets you to manage Cross-Origin Resource Sharing headers for your consumers.
 
-This implementation only reacts on the ```OPTIONS``` preflighted HTTP header by adding/setting/removing configured CORS headers from and to the API response. Thus, this implementation does not acts as a CORS negociation checker nor a full CORS dealer that could add CORS negociation to an API that does not support it.
+This is a strict implementation of W3C recommendations http://www.w3.org/TR/2014/REC-cors-20140116/[REC-cors-20140116].
+You can also have a look to https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS[Mozilla] website for
+an overview of CORS.
 
-This implementation is based on the W3C recommendation from the REC-cors-20140116. See http://www.w3.org/TR/2014/REC-cors-20140116/ for more details.
+This policy is a substitution of the CORS management from backend API. Thus, *backend will never be invoked in
+case of pre-flight request* (*OPTIONS* requests). For other requests, CORS headers will be set during the on-response
+phase.
+
 
 == Configuration
 
@@ -28,19 +36,33 @@ You can configure the policy with the following options :
 |===
 |Property |Required |Description |Type |Default
 
-|Todo
-|Todo
-|Todo
-|Todo
-|_todo_
+|accessControlAllowOrigin|X|The origin parameter specifies a URI that may access the resource|string|
+|accessControlAllowMethods|X|Specifies the method or methods allowed when accessing the resource. This is used in response to a preflight request|Array of HTTP methods|
+|accessControlAllowHeaders|X|Used in response to a preflight request to indicate which HTTP headers can be used when making the actual request|Array of HTTP headers|
+|accessControlAllowCredentials||Indicates whether or not the response to the request can be exposed when the credentials flag is true.|boolean|false
+|accessControlMaxAge||This header indicates how long the results of a preflight request can be cached (-1 if disabled).|integer|-1
+|accessControlExposeHeaders||This header lets a server whitelist headers that browsers are allowed to access.|Array of HTTP headers|
 
 |===
 
 
 [source, json]
-.Sample
+.Configuration example
 ----
 "cors": {
-  "todo": true
+    "accessControlAllowOrigin": "http://localhost",
+    "accessControlExposeHeaders": [
+        "X-Gravitee-Api-Key"
+    ],
+    "accessControlMaxAge": -1,
+    "accessControlAllowCredentials": true,
+    "accessControlAllowMethods": [
+        "GET",
+        "POST",
+        "PUT"
+    ],
+    "accessControlAllowHeaders": [
+        "X-Gravitee-Api-Key"
+    ]
 }
 ----
