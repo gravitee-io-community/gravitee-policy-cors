@@ -101,7 +101,7 @@ public class CorsPolicy {
 
     private boolean isRequestHeadersValid(String accessControlRequestHeaders) {
         String [] headers = splitAndTrim(accessControlRequestHeaders, ",");
-        return containsAll(configuration.getAccessControlAllowHeaders(), headers);
+        return headers != null && containsAll(configuration.getAccessControlAllowHeaders(), headers);
     }
 
     private boolean isRequestMethodsValid(String accessControlRequestMethods) {
