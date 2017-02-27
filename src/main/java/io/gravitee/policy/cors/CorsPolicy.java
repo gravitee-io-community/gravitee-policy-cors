@@ -106,7 +106,7 @@ public class CorsPolicy {
 
     private boolean isRequestMethodsValid(String accessControlRequestMethods) {
         String [] methods = splitAndTrim(accessControlRequestMethods, ",");
-        return containsAll(configuration.getAccessControlAllowMethods(), methods);
+        return methods != null && containsAll(configuration.getAccessControlAllowMethods(), methods);
     }
 
     private boolean isPreflightRequest(Request request) {
@@ -131,6 +131,10 @@ public class CorsPolicy {
     }
 
     private static boolean containsAll(Collection<String> col, String [] values) {
+        if (col == null) {
+            return false;
+        }
+
         for (String val: values) {
             if (! col.contains(val)) {
                 return false;
