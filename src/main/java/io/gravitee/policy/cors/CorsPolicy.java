@@ -27,10 +27,11 @@ import io.gravitee.policy.api.annotations.OnResponse;
 import io.gravitee.policy.cors.configuration.CorsPolicyConfiguration;
 
 import java.util.Collection;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * @author David BRASSELY (david at gravitee.io)
+ * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
  */
 @SuppressWarnings("unused")
@@ -103,14 +104,21 @@ public class CorsPolicy {
         return origin.contains(ALLOW_ORIGIN_PUBLIC_WILDCARD) || origin.contains(origin);
     }
 
-    private boolean isRequestHeadersValid(String accessControlRequestHeaders) {
-        String [] headers = splitAndTrim(accessControlRequestHeaders, ",");
-        return headers != null && containsAll(configuration.getAccessControlAllowHeaders(), headers);
+    boolean isRequestHeadersValid(String accessControlRequestHeaders) {
+        return isRequestValid(accessControlRequestHeaders, configuration.getAccessControlAllowHeaders(), false);
     }
 
-    private boolean isRequestMethodsValid(String accessControlRequestMethods) {
-        String [] methods = splitAndTrim(accessControlRequestMethods, ",");
-        return methods != null && containsAll(configuration.getAccessControlAllowMethods(), methods);
+    boolean isRequestMethodsValid(String accessControlRequestMethods) {
+        return isRequestValid(accessControlRequestMethods, configuration.getAccessControlAllowMethods(), true);
+    }
+
+    private boolean isRequestValid(String incoming, Set<String> configuredValues, boolean required) {
+        String [] inputs = splitAndTrim(incoming, ",");
+        if ((inputs == null || (inputs.length == 1 && inputs[0].isEmpty()))) {
+            return true;
+        }
+        return (inputs == null && (configuredValues == null || configuredValues.isEmpty())) ||
+                (inputs != null && containsAll(configuredValues, inputs));
     }
 
     private boolean isPreflightRequest(Request request) {
