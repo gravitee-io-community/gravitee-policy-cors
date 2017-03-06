@@ -27,6 +27,7 @@ import io.gravitee.policy.api.annotations.OnResponse;
 import io.gravitee.policy.cors.configuration.CorsPolicyConfiguration;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * @author David BRASSELY (david at gravitee.io)
@@ -65,7 +66,10 @@ public class CorsPolicy {
                     String.join(JOINER_CHAR_SEQUENCE, configuration.getAccessControlAllowHeaders()));
 
             response.headers().set(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS,
-                    String.join(JOINER_CHAR_SEQUENCE, configuration.getAccessControlAllowMethods()));
+                    configuration.getAccessControlAllowMethods()
+                            .stream()
+                            .map(String::toUpperCase)
+                            .collect(Collectors.joining(JOINER_CHAR_SEQUENCE)));
 
             if (configuration.getAccessControlMaxAge() > -1) {
                 response.headers().set(HttpHeaders.ACCESS_CONTROL_MAX_AGE,
