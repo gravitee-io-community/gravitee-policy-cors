@@ -25,7 +25,7 @@ import io.gravitee.policy.cors.utils.CaseInsensitiveHashSet;
 import java.util.Set;
 
 /**
- * @author David BRASSELY (david at gravitee.io)
+ * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
  */
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)

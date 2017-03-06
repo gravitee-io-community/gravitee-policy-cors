@@ -21,7 +21,7 @@ import java.util.LinkedHashSet;
 /**
  * Set implementation that is case insensitive.
  *
- * @author David BRASSELY (david at gravitee.io)
+ * @author David BRASSELY (david.brassely at graviteesource.com)
  * @author GraviteeSource Team
  */
 public class CaseInsensitiveHashSet extends LinkedHashSet<String> {
