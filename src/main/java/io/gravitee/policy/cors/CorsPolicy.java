@@ -18,9 +18,14 @@ package io.gravitee.policy.cors;
 import io.gravitee.common.http.HttpHeaders;
 import io.gravitee.common.http.HttpMethod;
 import io.gravitee.common.http.HttpStatusCode;
-import io.gravitee.gateway.api.*;
+import io.gravitee.gateway.api.ExecutionContext;
+import io.gravitee.gateway.api.Invoker;
+import io.gravitee.gateway.api.Request;
+import io.gravitee.gateway.api.Response;
 import io.gravitee.gateway.api.buffer.Buffer;
 import io.gravitee.gateway.api.handler.Handler;
+import io.gravitee.gateway.api.proxy.ProxyConnection;
+import io.gravitee.gateway.api.proxy.ProxyResponse;
 import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.annotations.OnRequest;
 import io.gravitee.policy.api.annotations.OnResponse;
@@ -165,41 +170,36 @@ public class CorsPolicy {
         }
 
         @Override
-        public ClientRequest invoke(ExecutionContext executionContext, Request serverRequest, Handler<ClientResponse> result) {
-            final ClientRequest clientRequest = new PreflightClientRequest(request, result);
+        public ProxyConnection invoke(ExecutionContext executionContext, Request serverRequest, Handler<ProxyResponse> result) {
+            final ProxyConnection proxyConnection = new PreflightProxyConnection(request, result);
 
             serverRequest
-                    .bodyHandler(clientRequest::write)
-                    .endHandler(endResult -> clientRequest.end());
+                    .bodyHandler(proxyConnection::write)
+                    .endHandler(endResult -> proxyConnection.end());
 
-            return clientRequest;
+            return proxyConnection;
         }
     }
 
-    class PreflightClientRequest implements ClientRequest {
+    class PreflightProxyConnection implements ProxyConnection {
 
-        private final Handler<ClientResponse> clientResponseHandler;
+        private final Handler<ProxyResponse> proxyResponseHandler;
         private final Request request;
 
-        PreflightClientRequest(final Request request, final Handler<ClientResponse> clientResponseHandler) {
+        PreflightProxyConnection(final Request request, final Handler<ProxyResponse> proxyResponseHandler) {
             this.request = request;
-            this.clientResponseHandler = clientResponseHandler;
+            this.proxyResponseHandler = proxyResponseHandler;
         }
 
         @Override
-        public ClientRequest connectTimeoutHandler(Handler<Throwable> timeoutHandler) {
-            return this;
-        }
-
-        @Override
-        public ClientRequest write(Buffer chunk) {
+        public ProxyConnection write(Buffer chunk) {
             return this;
         }
 
         @Override
         public void end() {
             // Prepare response
-            PreflightClientResponse preflightClientResponse = new PreflightClientResponse();
+            PreflightProxyResponse preflightProxyResponse = new PreflightProxyResponse();
 
             // 1. If the Origin header is not present terminate this set of steps. The request is outside the scope of
             //  this specification.
@@ -207,7 +207,7 @@ public class CorsPolicy {
             //  origins, do not set any additional headers and terminate this set of steps.
             String originHeader = request.headers().getFirst(HttpHeaders.ORIGIN);
             if (! isOriginAllowed(originHeader)) {
-                preflightClientResponse.status = configuration.getCorsErrorStatusCode();
+                preflightProxyResponse.status = configuration.getCorsErrorStatusCode();
             }
 
             // 3. Let method be the value as result of parsing the Access-Control-Request-Method header.
@@ -215,20 +215,20 @@ public class CorsPolicy {
             //  headers and terminate this set of steps. The request is outside the scope of this specification.
             String accessControlRequestMethod = request.headers().getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD);
             if (! isRequestMethodsValid(accessControlRequestMethod)) {
-                preflightClientResponse.status = configuration.getCorsErrorStatusCode();
+                preflightProxyResponse.status = configuration.getCorsErrorStatusCode();
             }
 
             String accessControlRequestHeaders = request.headers().getFirst(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS);
             if (! isRequestHeadersValid(accessControlRequestHeaders)) {
-                preflightClientResponse.status = configuration.getCorsErrorStatusCode();
+                preflightProxyResponse.status = configuration.getCorsErrorStatusCode();
             }
 
-            clientResponseHandler.handle(preflightClientResponse);
-            preflightClientResponse.endHandler.handle(null);
+            proxyResponseHandler.handle(preflightProxyResponse);
+            preflightProxyResponse.endHandler.handle(null);
         }
     }
 
-    class PreflightClientResponse implements ClientResponse {
+    class PreflightProxyResponse implements ProxyResponse {
 
         private final HttpHeaders headers = new HttpHeaders();
 
@@ -248,13 +248,13 @@ public class CorsPolicy {
         }
 
         @Override
-        public ClientResponse bodyHandler(Handler<Buffer> bodyHandler) {
+        public ProxyResponse bodyHandler(Handler<Buffer> bodyHandler) {
             this.bodyHandler = bodyHandler;
             return this;
         }
 
         @Override
-        public ClientResponse endHandler(Handler<Void> endHandler) {
+        public ProxyResponse endHandler(Handler<Void> endHandler) {
             this.endHandler = endHandler;
             return this;
         }
