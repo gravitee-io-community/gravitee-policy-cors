@@ -26,6 +26,7 @@ import io.gravitee.gateway.api.buffer.Buffer;
 import io.gravitee.gateway.api.handler.Handler;
 import io.gravitee.gateway.api.proxy.ProxyConnection;
 import io.gravitee.gateway.api.proxy.ProxyResponse;
+import io.gravitee.gateway.api.stream.ReadStream;
 import io.gravitee.policy.api.PolicyChain;
 import io.gravitee.policy.api.annotations.OnRequest;
 import io.gravitee.policy.api.annotations.OnResponse;
@@ -170,29 +171,36 @@ public class CorsPolicy {
         }
 
         @Override
-        public ProxyConnection invoke(ExecutionContext executionContext, Request serverRequest, Handler<ProxyResponse> result) {
-            final ProxyConnection proxyConnection = new PreflightProxyConnection(request, result);
+        public Request invoke(ExecutionContext executionContext, Request serverRequest, ReadStream<Buffer> stream, Handler<ProxyConnection> connectionHandler) {
+            final ProxyConnection proxyConnection = new PreflightProxyConnection(serverRequest);
 
             serverRequest
                     .bodyHandler(proxyConnection::write)
                     .endHandler(endResult -> proxyConnection.end());
 
-            return proxyConnection;
+            connectionHandler.handle(proxyConnection);
+            serverRequest.resume();
+            return serverRequest;
         }
     }
 
     class PreflightProxyConnection implements ProxyConnection {
 
-        private final Handler<ProxyResponse> proxyResponseHandler;
+        private Handler<ProxyResponse> proxyResponseHandler;
         private final Request request;
 
-        PreflightProxyConnection(final Request request, final Handler<ProxyResponse> proxyResponseHandler) {
+        PreflightProxyConnection(final Request request) {
             this.request = request;
-            this.proxyResponseHandler = proxyResponseHandler;
         }
 
         @Override
         public ProxyConnection write(Buffer chunk) {
+            return this;
+        }
+
+        @Override
+        public ProxyConnection responseHandler(Handler<ProxyResponse> responseHandler) {
+            this.proxyResponseHandler = responseHandler;
             return this;
         }
 
