@@ -174,7 +174,7 @@ public class CorsPolicy {
         public Request invoke(ExecutionContext executionContext, Request serverRequest, ReadStream<Buffer> stream, Handler<ProxyConnection> connectionHandler) {
             final ProxyConnection proxyConnection = new PreflightProxyConnection(serverRequest);
 
-            serverRequest
+            stream
                     .bodyHandler(proxyConnection::write)
                     .endHandler(endResult -> proxyConnection.end());
 
