@@ -6,7 +6,7 @@ image:https://badges.gitter.im/Join Chat.svg["Gitter", link="https://gitter.im/g
 endif::[]
 
 == Deprecated
-WARN: This policy is deprecated and should not be used anymore.
+CAUTION: This policy is deprecated and no more available since Gravitee.io APIM 1.16
 
 == Phase
 
