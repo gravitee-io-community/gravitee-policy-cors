@@ -27,9 +27,9 @@ import io.gravitee.gateway.api.handler.Handler;
 import io.gravitee.gateway.api.proxy.ProxyConnection;
 import io.gravitee.gateway.api.proxy.ProxyResponse;
 import io.gravitee.gateway.api.stream.ReadStream;
+import io.gravitee.policy.api.ChainScope;
 import io.gravitee.policy.api.PolicyChain;
-import io.gravitee.policy.api.annotations.OnRequest;
-import io.gravitee.policy.api.annotations.OnResponse;
+import io.gravitee.policy.api.annotations.*;
 import io.gravitee.policy.cors.configuration.CorsPolicyConfiguration;
 
 import java.util.Collection;
@@ -41,6 +41,11 @@ import java.util.stream.Collectors;
  * @author GraviteeSource Team
  */
 @SuppressWarnings("unused")
+@Policy(
+        category = @Category(io.gravitee.policy.api.Category.SECURITY),
+        scope = @Scope(ChainScope.API)
+)
+@Deprecated
 public class CorsPolicy {
 
     private final static String ALLOW_ORIGIN_PUBLIC_WILDCARD = "*";
